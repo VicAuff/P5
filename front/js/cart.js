@@ -38,5 +38,15 @@ homeButton.addEventListener("click", function () {
 const cartItems = JSON.parse(localStorage.getItem("cartItems")) || [];
 
 // Récupère les données de l'API
-fetch("http://localhost:3000/api/products").then((res) => res.json());
-// .then((data) => {
+/*
+fetch("http://localhost:3000/api/products")
+.then((res) => res.json())
+.then((data) => {
+  document.querySelector("#title").innerHTML = data.name;
+  document.querySelector("#price").innerHTML = data.price;
+  document.querySelector("#quantity").innerHTML = data.quantity;
+  console.log(quantity);
+  document.querySelector("#colors").innerHTML = data.color;
+  console.log(colors);
+  return cartItems();
+});*/

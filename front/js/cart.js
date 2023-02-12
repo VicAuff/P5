@@ -1,10 +1,12 @@
 // Changement du titre de la page cart.js en injection
 document.querySelector("title").innerHTML = "Panier Kanap";
 
+const helper = new Helper();
+
 /*----Début d'intégration bouton "Retour acceuil" sur le panier.----*/
 
 // Selectionne l'élément "section" et change sa position en "relative"
-var section = document.querySelector("section");
+var section = document.querySelector("main");
 section.style.position = "relative";
 
 // Crée un bouton "Retour accueil" avec les propriétés suivantes
@@ -12,8 +14,8 @@ var homeButton = document.createElement("button");
 homeButton.innerHTML = "Retour accueil";
 homeButton.id = "home-button";
 homeButton.style.position = "absolute";
-homeButton.style.top = "6px";
-homeButton.style.left = "5px";
+homeButton.style.top = "10px";
+homeButton.style.left = "10px";
 homeButton.style.fontSize = "15px";
 homeButton.style.borderRadius = "40px";
 homeButton.style.padding = "8px 8px";
@@ -35,7 +37,7 @@ homeButton.addEventListener("click", function () {
 let panier = JSON.parse(localStorage.getItem("panier"));
 
 if (panier === null || panier.length === 0) {
-  // div panier vide creer function
+  helper.construcDivPanierVide(`Le panier est vide !`, "#2c3e50");
 } else {
   fetch("http://localhost:3000/api/products")
     .then((res) => res.json())
@@ -69,8 +71,68 @@ if (panier === null || panier.length === 0) {
       document
         .querySelector("#cart__items")
         .insertAdjacentHTML("beforeend", boucle);
-    })
 
+      let totalQuantity = 0;
+      let totalPrice = 0;
+
+      for (let article in panier) {
+        totalQuantity += parseInt(panier[article].itemQuantity);
+        totalPrice += panier[article].itemQuantity * data[article].price;
+      }
+
+      document.querySelector("#totalQuantity").textContent = totalQuantity;
+      document.querySelector("#totalPrice").textContent = totalPrice;
+
+      // Sélectionnez tous les éléments avec la class "deleteItem"
+      const deleteButtons = document.querySelectorAll(".deleteItem");
+
+      // Parcourir tous les boutons de suppression et ajouter un écouteur d'événements à chacun
+      deleteButtons.forEach((button) => {
+        button.addEventListener("click", (event) => {
+          const productId = event.target.closest(".cart__item").dataset.id;
+          const productColor =
+            event.target.closest(".cart__item").dataset.color;
+          const cartContent = JSON.parse(localStorage.getItem("panier"));
+
+          // Retirer l'article du panier
+          const updatedCart = cartContent.filter(
+            (item) => item.id !== productId || item.color !== productColor
+          );
+
+          // Mettre à jour le localStorage avec le nouveau contenu du panier
+          localStorage.setItem("panier", JSON.stringify(updatedCart));
+
+          // Recharger la page pour mettre à jour l'affichage
+          location.reload();
+        });
+      });
+
+      // Parcourir toutes les quantités d'article et ajouter un écouteur d'événement à chacune
+      const quantityInputs = document.querySelectorAll(".itemQuantity");
+
+      quantityInputs.forEach((input) => {
+        input.addEventListener("change", (event) => {
+          const productId = event.target.closest(".cart__item").dataset.id;
+          const productColor =
+            event.target.closest(".cart__item").dataset.color;
+          const cartContent = JSON.parse(localStorage.getItem("panier"));
+
+          // Mettre à jour la quantité de l'article dans le panier
+          const updatedCart = cartContent.map((item) => {
+            if (item.id === productId && item.color === productColor) {
+              item.itemQuantity = event.target.value;
+            }
+            return item;
+          });
+
+          // Mettre à jour le localStorage avec le nouveau contenu du panier
+          localStorage.setItem("panier", JSON.stringify(updatedCart));
+
+          // Recharger la page pour mettre à jour l'affichage
+          location.reload();
+        });
+      });
+    })
     .catch((error) => console.log(error));
 }
 
@@ -98,10 +160,19 @@ order.onclick = (e) => {
     email: email.value,
   };
 
-  /* -------------Lancer la fonction de vérification -------------- */
+  /* -------------Lancer la fonction de vérification-------------- */
   validationFormulaire();
+  if (
+    firstNameErrorMsg.innerHTML == "" &&
+    lastNameErrorMsg.innerHTML == "" &&
+    addressErrorMsg.innerHTML == "" &&
+    cityErrorMsg.innerHTML == "" &&
+    emailErrorMsg.innerHTML == ""
+  ) {
+    window.location.href = "confirmation.html";
+  }
 
-  /* ------------- mettre cette fonction dans le heiper -------------- */
+  /* ------------- mettre cette fonction dans le heper -------------- */
 
   function validationFormulaire() {
     let firstName = document.getElementById("firstName");

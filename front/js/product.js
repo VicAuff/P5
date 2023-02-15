@@ -8,7 +8,7 @@ const helper = new Helper();
 var article = document.querySelector("article");
 article.style.position = "relative";
 
-// Crée un bouton "Retour accueil" avec les propriétés suivantes
+// Crée un bouton "Retour accueil" avec les propriétés suivantes ------ ça aussi Helper ultérieurement -------
 var homeButton = document.createElement("button");
 homeButton.innerHTML = "Retour accueil";
 homeButton.id = "home-button";

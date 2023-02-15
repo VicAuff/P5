@@ -9,7 +9,7 @@ const helper = new Helper();
 var section = document.querySelector("main");
 section.style.position = "relative";
 
-// Crée un bouton "Retour accueil" avec les propriétés suivantes
+// Crée un bouton "Retour accueil" avec les propriétés suivantes ------ ça aussi Helper ultérieurement -------
 var homeButton = document.createElement("button");
 homeButton.innerHTML = "Retour accueil";
 homeButton.id = "home-button";
@@ -151,8 +151,8 @@ order.onclick = (e) => {
   let regExName = /^[a-zA-Z-\s]+$/;
   let regExEmail = /^[a-zA-Z0-9.-_]+[@]{1}[a-zA-Z0-9.-_]+[.]{1}[a-z]{2,10}$/;
 
-  /* ------------- déclaration de l'objet contact-------------- */
-  const contact = {
+  /* ------------- déclaration de l'objet contact qui sera envoyé dans la requête POST -------------- */
+  let contact = {
     firstName: firstName.value,
     lastName: lastName.value,
     address: address.value,
@@ -162,17 +162,8 @@ order.onclick = (e) => {
 
   /* -------------Lancer la fonction de vérification-------------- */
   validationFormulaire();
-  if (
-    firstNameErrorMsg.innerHTML == "" &&
-    lastNameErrorMsg.innerHTML == "" &&
-    addressErrorMsg.innerHTML == "" &&
-    cityErrorMsg.innerHTML == "" &&
-    emailErrorMsg.innerHTML == ""
-  ) {
-    window.location.href = "confirmation.html";
-  }
 
-  /* ------------- mettre cette fonction dans le heper -------------- */
+  /* ------------- mettre cette fonction dans le helper ultérieurement-------------- */
 
   function validationFormulaire() {
     let firstName = document.getElementById("firstName");
@@ -233,5 +224,52 @@ order.onclick = (e) => {
       emailErrorMsg.innerHTML = "";
     }
   }
-  // pour la suite
+
+  let orderButton = document.getElementById("order");
+  orderButton.addEventListener("click", function (event) {
+    event.preventDefault();
+
+    // Récupérer les valeurs des champs de saisie utilisateur
+    let firstName = document.getElementById("firstName").value;
+    let lastName = document.getElementById("lastName").value;
+    let address = document.getElementById("address").value;
+    let city = document.getElementById("city").value;
+    let email = document.getElementById("email").value;
+
+    // Créer l'objet de contact pour la requête POST
+    let contact = {
+      firstName: firstName,
+      lastName: lastName,
+      address: address,
+      city: city,
+      email: email,
+    };
+
+    // Récupérer le contenu du panier dans le localStorage
+    let cartContent = JSON.parse(localStorage.getItem("panier"));
+
+    // Créer un tableau d'ID de produits à partir du contenu du panier
+    let productIds = cartContent.map((item) => item.id);
+
+    // Créer l'objet à envoyer dans la requête POST
+    let data = {
+      contact: contact,
+      products: productIds,
+    };
+
+    // Envoyer la requête POST avec les données de commande
+    fetch("http://localhost:3000/api/products/order", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        // Rediriger l'utilisateur vers la page de confirmation de commande
+        window.location.href = `confirmation.html?id=${data.orderId}`;
+      })
+      .catch((error) => console.error(error));
+  });
 };

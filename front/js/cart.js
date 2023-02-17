@@ -3,47 +3,25 @@ document.querySelector("title").innerHTML = "Panier Kanap";
 
 const helper = new Helper();
 
-/*----Début d'intégration bouton "Retour acceuil" sur le panier.----*/
+helper.addHomeButton();
 
-// Selectionne l'élément "section" et change sa position en "relative"
-var section = document.querySelector("main");
-section.style.position = "relative";
-
-// Crée un bouton "Retour accueil" avec les propriétés suivantes ------ ça aussi Helper ultérieurement -------
-var homeButton = document.createElement("button");
-homeButton.innerHTML = "Retour accueil";
-homeButton.id = "home-button";
-homeButton.style.position = "absolute";
-homeButton.style.top = "10px";
-homeButton.style.left = "10px";
-homeButton.style.fontSize = "15px";
-homeButton.style.borderRadius = "40px";
-homeButton.style.padding = "8px 8px";
-homeButton.style.border = "0";
-homeButton.style.backgroundColor = "#2c3e50";
-homeButton.style.color = "white";
-homeButton.style.cursor = "pointer";
-var section = document.querySelector("section");
-section.appendChild(homeButton);
-
-// Ajoute un événement "click" sur le bouton "Retour accueil" pour rediriger vers la page d'accueil
-var homeButton = document.getElementById("home-button");
-homeButton.addEventListener("click", function () {
-  window.location.href = "./index.html";
-});
-
-/*----Fin d'intégration bouton "Retour acceuil" sur le panier.----*/
-
+// Récupère le contenu du panier enregistré dans le localStorage et le convertit en objet JavaScript
 let panier = JSON.parse(localStorage.getItem("panier"));
 
+// Vérifie si le panier est vide ou null
 if (panier === null || panier.length === 0) {
-  helper.construcDivPanierVide(`Le panier est vide !`, "#2c3e50");
-} else {
+  // Si le panier est vide, appelle la méthode construcDivPanierVide de l'objet helper pour construire un message à afficher
+  helper.construcDivPanierVide("Le panier est vide !", "#2c3e50");
+}
+// Si le panier n'est pas vide, fait une requête fetch pour récupérer les informations des produits en utilisant l'API
+else {
   fetch("http://localhost:3000/api/products")
     .then((res) => res.json())
     .then((data) => {
+      // Déclare une variable boucle pour stocker les informations des articles dans le panier
       let boucle = "";
       for (let article in panier) {
+        // Ajoute les informations de chaque article du panier à la variable boucle sous forme de HTML
         boucle += `
                 <article class="cart__item" data-id="${panier[article].id}" data-color="${panier[article].color}">
                   <div class="cart__item__img">
@@ -68,56 +46,64 @@ if (panier === null || panier.length === 0) {
                 </article>
         `;
       }
+      // Insère la variable boucle dans le HTML pour afficher les informations des articles du panier
       document
         .querySelector("#cart__items")
         .insertAdjacentHTML("beforeend", boucle);
 
+      // Initialise les variables pour le nombre total d'articles et le prix total
       let totalQuantity = 0;
       let totalPrice = 0;
 
+      // Boucle sur tous les articles du panier pour calculer le nombre total d'articles et le prix total
       for (let article in panier) {
         totalQuantity += parseInt(panier[article].itemQuantity);
         totalPrice += panier[article].itemQuantity * data[article].price;
       }
 
+      // Met à jour les éléments HTML pour afficher le nombre total d'articles et le prix total
       document.querySelector("#totalQuantity").textContent = totalQuantity;
       document.querySelector("#totalPrice").textContent = totalPrice;
 
-      // Sélectionnez tous les éléments avec la class "deleteItem"
+      // Sélectionne tous les éléments avec la classe "deleteItem"
       const deleteButtons = document.querySelectorAll(".deleteItem");
 
-      // Parcourir tous les boutons de suppression et ajouter un écouteur d'événements à chacun
+      // Boucle sur tous les boutons de suppression et ajoute un écouteur d'évenement
       deleteButtons.forEach((button) => {
+        // Ajoute un écouteur d'événements sur le clic du bouton de suppression
         button.addEventListener("click", (event) => {
+          // Récupère l'ID et la couleur de l'article à supprimer en parcourant la structure HTML pour trouver la balise la plus proche avec l'attribut "data-id" et "data-color"
           const productId = event.target.closest(".cart__item").dataset.id;
           const productColor =
             event.target.closest(".cart__item").dataset.color;
           const cartContent = JSON.parse(localStorage.getItem("panier"));
 
-          // Retirer l'article du panier
+          // Retire l'article du panier en créant un nouveau tableau avec tous les articles sauf celui qui doit être supprimé
           const updatedCart = cartContent.filter(
             (item) => item.id !== productId || item.color !== productColor
           );
 
-          // Mettre à jour le localStorage avec le nouveau contenu du panier
+          // Met à jour le localStorage avec le nouveau contenu du panier
           localStorage.setItem("panier", JSON.stringify(updatedCart));
 
-          // Recharger la page pour mettre à jour l'affichage
+          // Recharge la page pour mettre à jour l'affichage du panier
           location.reload();
         });
       });
 
-      // Parcourir toutes les quantités d'article et ajouter un écouteur d'événement à chacune
+      // Boucle sur tous les champs de quantité d'article et ajoute un écouteur d'événement pour détecter les changements de quantité
       const quantityInputs = document.querySelectorAll(".itemQuantity");
 
       quantityInputs.forEach((input) => {
+        // Ajoute un écouteur d'événements sur le changement de la quantité d'article
         input.addEventListener("change", (event) => {
+          // Récupère l'ID et la couleur de l'article dont la quantité a changé en parcourant la structure HTML pour trouver la balise la plus proche avec l'attribut "data-id" et "data-color"
           const productId = event.target.closest(".cart__item").dataset.id;
           const productColor =
             event.target.closest(".cart__item").dataset.color;
           const cartContent = JSON.parse(localStorage.getItem("panier"));
 
-          // Mettre à jour la quantité de l'article dans le panier
+          // Met à jour la quantité de l'article dans le panier
           const updatedCart = cartContent.map((item) => {
             if (item.id === productId && item.color === productColor) {
               item.itemQuantity = event.target.value;
@@ -125,10 +111,10 @@ if (panier === null || panier.length === 0) {
             return item;
           });
 
-          // Mettre à jour le localStorage avec le nouveau contenu du panier
+          // Met à jour le localStorage avec le nouveau contenu du panier
           localStorage.setItem("panier", JSON.stringify(updatedCart));
 
-          // Recharger la page pour mettre à jour l'affichage
+          // Recharge la page pour mettre à jour l'affichage du panier
           location.reload();
         });
       });
@@ -136,124 +122,151 @@ if (panier === null || panier.length === 0) {
     .catch((error) => console.log(error));
 }
 
-let order = document.getElementById("order");
-order.onclick = (e) => {
-  e.preventDefault();
-  /* ------------- déclaration des variables qui ce trouve dans le cart.html-------------- */
+// Récupère l'élément d'entrée avec l'identifiant "firstName" du document HTML et l'assigne à la variable firstNameInput
+const firstNameInput = document.getElementById("firstName");
+// Récupère l'élément d'entrée avec l'identifiant "lastName" du document HTML et l'assigne à la variable lastNameInput
+const lastNameInput = document.getElementById("lastName");
+// Récupère l'élément d'entrée avec l'identifiant "address" du document HTML et l'assigne à la variable addressInput
+const addressInput = document.getElementById("address");
+// Récupère l'élément d'entrée avec l'identifiant "city" du document HTML et l'assigne à la variable cityInput
+const cityInput = document.getElementById("city");
+// Récupère l'élément d'entrée avec l'identifiant "email" du document HTML et l'assigne à la variable emailInput
+const emailInput = document.getElementById("email");
 
-  let firstName = document.getElementById("firstName");
-  let lastName = document.getElementById("lastName");
-  let address = document.getElementById("address");
-  let city = document.getElementById("city");
-  let email = document.getElementById("email");
+// Définit l'expression régulière pour les noms
+const regExName = /^[a-zA-Z-\s]+$/;
+// Définit l'expression régulière pour les adresses e-mail
+const regExEmail = /^[a-zA-Z0-9.-]+[@]{1}[a-zA-Z0-9.-]+[.]{1}[a-z]{2,10}$/;
 
-  /* ------------- déclaration des regEx pour validation du formulaire -------------- */
-  let regExName = /^[a-zA-Z-\s]+$/;
-  let regExEmail = /^[a-zA-Z0-9.-_]+[@]{1}[a-zA-Z0-9.-_]+[.]{1}[a-z]{2,10}$/;
+// Récupère l'élément HTML pour afficher les messages d'erreur associés au champ "firstName" et l'assigne à la variable firstNameErrorMsg
+const firstNameErrorMsg = document.getElementById("firstNameErrorMsg");
+// Récupère l'élément HTML pour afficher les messages d'erreur associés au champ "lastName" et l'assigne à la variable lastNameErrorMsg
+const lastNameErrorMsg = document.getElementById("lastNameErrorMsg");
+// Récupère l'élément HTML pour afficher les messages d'erreur associés au champ "address" et l'assigne à la variable addressErrorMsg
+const addressErrorMsg = document.getElementById("addressErrorMsg");
+// Récupère l'élément HTML pour afficher les messages d'erreur associés au champ "city" et l'assigne à la variable cityErrorMsg
+const cityErrorMsg = document.getElementById("cityErrorMsg");
+// Récupère l'élément HTML pour afficher les messages d'erreur associés au champ "email" et l'assigne à la variable emailErrorMsg
+const emailErrorMsg = document.getElementById("emailErrorMsg");
 
-  /* ------------- déclaration de l'objet contact qui sera envoyé dans la requête POST -------------- */
-  let contact = {
-    firstName: firstName.value,
-    lastName: lastName.value,
-    address: address.value,
-    city: city.value,
-    email: email.value,
-  };
+// Fonction de validation du formulaire
+function validateForm() {
+  let isValid = true;
 
-  /* -------------Lancer la fonction de vérification-------------- */
-  validationFormulaire();
-
-  /* ------------- mettre cette fonction dans le helper ultérieurement-------------- */
-
-  function validationFormulaire() {
-    let firstName = document.getElementById("firstName");
-    let lastName = document.getElementById("lastName");
-    let address = document.getElementById("address");
-    let city = document.getElementById("city");
-    let email = document.getElementById("email");
-    let firstNameErrorMsg = document.getElementById("firstNameErrorMsg");
-    let lastNameErrorMsg = document.getElementById("lastNameErrorMsg");
-
-    /* ------------- validation du prénom -------------- */
-    if (firstName.value == "") {
-      firstNameErrorMsg.innerHTML = "Ce champs est requis.";
-      firstNameErrorMsg.style.color = "red";
-    } else if (regExName.test(firstName.value) == false) {
-      firstNameErrorMsg.innerHTML =
-        "Les caractères saisis ne sont pas valides.";
-      firstNameErrorMsg.style.color = "red";
-    } else {
-      firstNameErrorMsg.innerHTML = "";
-    }
-
-    /* ------------- validation du nom -------------- */
-    if (lastName.value == "") {
-      lastNameErrorMsg.innerHTML = "Ce champs est requis.";
-      lastNameErrorMsg.style.color = "red";
-    } else if (regExName.test(lastName.value) == false) {
-      lastNameErrorMsg.innerHTML = "Les caractères saisis ne sont pas valides.";
-      lastNameErrorMsg.style.color = "red";
-    } else {
-      lastNameErrorMsg.innerHTML = "";
-    }
-
-    /* ------------- validation de l'adresse -------------- */
-    if (address.value == "") {
-      addressErrorMsg.innerHTML = "Ce champs est requis.";
-      addressErrorMsg.style.color = "red";
-    } else {
-      addressErrorMsg.innerHTML = "";
-    }
-
-    /* ------------- validation de la ville -------------- */
-    if (city.value == "") {
-      cityErrorMsg.innerHTML = "Ce champs est requis.";
-      cityErrorMsg.style.color = "red";
-    } else {
-      cityErrorMsg.innerHTML = "";
-    }
-
-    /* ------------- validation de l'email -------------- */
-    if (email.value == "") {
-      emailErrorMsg.innerHTML = "Ce champs est requis.";
-      emailErrorMsg.style.color = "red";
-    } else if (regExEmail.test(email.value) == false) {
-      emailErrorMsg.innerHTML = "Ceci n'est pas une adresse mail valide.";
-      emailErrorMsg.style.color = "red";
-    } else {
-      emailErrorMsg.innerHTML = "";
-    }
+  // Vérifie si le champ "firstName" est vide
+  if (firstNameInput.value.trim() === "") {
+    firstNameErrorMsg.classList.add("error");
+    firstNameErrorMsg.innerHTML = "Ce champ est requis.";
+    firstNameErrorMsg.style.color = "red";
+    firstNameErrorMsg.style.fontWeight = "bold";
+    isValid = false;
+  }
+  // Vérifie si le champ "firstName" contient des caractères invalides
+  else if (!regExName.test(firstNameInput.value)) {
+    firstNameErrorMsg.classList.add("error");
+    firstNameErrorMsg.innerHTML = "Les caractères saisis ne sont pas valides.";
+    firstNameErrorMsg.style.color = "red";
+    firstNameErrorMsg.style.fontWeight = "bold";
+    isValid = false;
+  }
+  // Si le champ "firstName" est valide, efface le message d'erreur
+  else {
+    firstNameErrorMsg.innerHTML = "";
+  }
+  // Vérifie si le champ "lastName" est vide
+  if (lastNameInput.value.trim() === "") {
+    lastNameErrorMsg.classList.add("error");
+    lastNameErrorMsg.innerHTML = "Ce champ est requis.";
+    lastNameErrorMsg.style.color = "red";
+    lastNameErrorMsg.style.fontWeight = "bold";
+    isValid = false;
+  }
+  // Vérifie si le champ "lastName" contient des caractères invalides
+  else if (!regExName.test(lastNameInput.value)) {
+    lastNameErrorMsg.classList.add("error");
+    lastNameErrorMsg.innerHTML = "Les caractères saisis ne sont pas valides.";
+    lastNameErrorMsg.style.color = "red";
+    lastNameErrorMsg.style.fontWeight = "bold";
+    isValid = false;
+  }
+  // Si le champ "lastName" est valide, efface le message d'erreur
+  else {
+    lastNameErrorMsg.innerHTML = "";
   }
 
-  let orderButton = document.getElementById("order");
-  orderButton.addEventListener("click", function (event) {
-    event.preventDefault();
+  // Vérifie si le champ "address" est vide
+  if (addressInput.value.trim() === "") {
+    addressErrorMsg.innerHTML = "Ce champ est requis.";
+    addressErrorMsg.classList.add("error");
+    addressErrorMsg.style.color = "red";
+    addressErrorMsg.style.fontWeight = "bold";
+    isValid = false;
+  }
+  // Si le champ "address" est valide, efface le message d'erreur
+  else {
+    addressErrorMsg.innerHTML = "";
+  }
 
-    // Récupérer les valeurs des champs de saisie utilisateur
-    let firstName = document.getElementById("firstName").value;
-    let lastName = document.getElementById("lastName").value;
-    let address = document.getElementById("address").value;
-    let city = document.getElementById("city").value;
-    let email = document.getElementById("email").value;
+  // Vérifie si le champ "city" est vide
+  if (cityInput.value.trim() === "") {
+    cityErrorMsg.innerHTML = "Ce champ est requis.";
+    cityErrorMsg.classList.add("error");
+    cityErrorMsg.style.color = "red";
+    cityErrorMsg.style.fontWeight = "bold";
+    isValid = false;
+  }
+  // Si le champ "city" est valide, efface le message d'erreur
+  else {
+    cityErrorMsg.innerHTML = "";
+  }
 
-    // Créer l'objet de contact pour la requête POST
-    let contact = {
-      firstName: firstName,
-      lastName: lastName,
-      address: address,
-      city: city,
-      email: email,
-    };
+  // Vérifie si le champ "email" est vide
+  if (emailInput.value.trim() === "") {
+    emailErrorMsg.innerHTML = "Ce champ est requis.";
+    emailErrorMsg.classList.add("error");
+    emailErrorMsg.style.color = "red";
+    emailErrorMsg.style.fontWeight = "bold";
+    isValid = false;
+  }
+  // Vérifie si le champ "email" contient une adresse email valide
+  else if (!regExEmail.test(emailInput.value)) {
+    emailErrorMsg.classList.add("error");
+    emailErrorMsg.innerHTML = "Ceci n'est pas une adresse mail valide.";
+    emailErrorMsg.style.color = "red";
+    emailErrorMsg.style.fontWeight = "bold";
+    isValid = false;
+  }
+  // Si le champ "email" est valide, efface le message d'erreur
+  else {
+    emailErrorMsg.innerHTML = "";
+  }
+  // Renvoie la validité du formulaire
+  return isValid;
+}
 
+// Récupère le bouton "order" de la page HTML et ajoute un écouteur d'événement pour le clic, qui appelle la fonction validateForm
+const orderButton = document.getElementById("order");
+
+orderButton.addEventListener("click", function (event) {
+  event.preventDefault();
+  // Empêche la page de se recharger lorsqu'on clique sur le bouton "order"
+
+  if (validateForm()) {
     // Récupérer le contenu du panier dans le localStorage
-    let cartContent = JSON.parse(localStorage.getItem("panier"));
+    const cartContent = JSON.parse(localStorage.getItem("panier"));
 
     // Créer un tableau d'ID de produits à partir du contenu du panier
-    let productIds = cartContent.map((item) => item.id);
+    const productIds = cartContent.map((item) => item.id);
 
     // Créer l'objet à envoyer dans la requête POST
-    let data = {
-      contact: contact,
+    const data = {
+      contact: {
+        firstName: firstNameInput.value,
+        lastName: lastNameInput.value,
+        address: addressInput.value,
+        city: cityInput.value,
+        email: emailInput.value,
+      },
       products: productIds,
     };
 
@@ -265,11 +278,19 @@ order.onclick = (e) => {
       },
       body: JSON.stringify(data),
     })
-      .then((response) => response.json())
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Une erreur est survenue lors de la requête.");
+        }
+        return response.json();
+      })
       .then((data) => {
         // Rediriger l'utilisateur vers la page de confirmation de commande
         window.location.href = `confirmation.html?id=${data.orderId}`;
       })
-      .catch((error) => console.error(error));
-  });
-};
+      .catch((error) => {
+        console.error(error);
+        alert("Une erreur est survenue lors de l'envoi de la commande.");
+      });
+  }
+});

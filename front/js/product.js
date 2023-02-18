@@ -5,6 +5,8 @@ const helper = new Helper();
 
 helper.addHomeButtonToProduct();
 
+helper.countProducts();
+
 // Recuperation parametre id de l'URL avec URLSearchParams
 const id = new URLSearchParams(window.location.search).get("id");
 
@@ -110,8 +112,7 @@ fetch(`http://localhost:3000/api/products/${id}`)
 
       // Affiche un message de succès à l'utilisateur
       helper.construcDivSucess(
-        `Ajout au panier effectué avec succès, voulez vous continuer vos achats ?`,
-        "#31F800"
+        `Ajout au panier effectué avec succès, voulez vous continuer vos achats ?`
       );
     };
   });

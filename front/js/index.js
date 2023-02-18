@@ -1,6 +1,8 @@
 // Changement du titre de la page index.js en injection
 document.querySelector("title").innerHTML = "Accueil Kanap";
 
+const helper = new Helper();
+
 /*----Debut d'intégration des informations d'image, 
 de nom et de description de l'API dans la page d'accueil index.html----*/
 
@@ -48,6 +50,7 @@ fetch("http://localhost:3000/api/products")
       description.className = "productDescription";
       description.innerHTML = `${products.description}`; // Injecte la description dans la carte produit
     }
+    helper.countProducts();
   });
 
 /*----Fin d'intégration des informations d'image, 

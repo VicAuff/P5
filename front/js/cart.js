@@ -149,101 +149,6 @@ const cityErrorMsg = document.getElementById("cityErrorMsg");
 // Récupère l'élément HTML pour afficher les messages d'erreur associés au champ "email" et l'assigne à la variable emailErrorMsg
 const emailErrorMsg = document.getElementById("emailErrorMsg");
 
-// Fonction de validation du formulaire
-function validateForm() {
-  let isValid = true;
-
-  // Vérifie si le champ "firstName" est vide
-  if (firstNameInput.value.trim() === "") {
-    firstNameErrorMsg.classList.add("error");
-    firstNameErrorMsg.innerHTML = "Ce champ est requis.";
-    firstNameErrorMsg.style.color = "red";
-    firstNameErrorMsg.style.fontWeight = "bold";
-    isValid = false;
-  }
-  // Vérifie si le champ "firstName" contient des caractères invalides
-  else if (!regExName.test(firstNameInput.value)) {
-    firstNameErrorMsg.classList.add("error");
-    firstNameErrorMsg.innerHTML = "Les caractères saisis ne sont pas valides.";
-    firstNameErrorMsg.style.color = "red";
-    firstNameErrorMsg.style.fontWeight = "bold";
-    isValid = false;
-  }
-  // Si le champ "firstName" est valide, efface le message d'erreur
-  else {
-    firstNameErrorMsg.innerHTML = "";
-  }
-  // Vérifie si le champ "lastName" est vide
-  if (lastNameInput.value.trim() === "") {
-    lastNameErrorMsg.classList.add("error");
-    lastNameErrorMsg.innerHTML = "Ce champ est requis.";
-    lastNameErrorMsg.style.color = "red";
-    lastNameErrorMsg.style.fontWeight = "bold";
-    isValid = false;
-  }
-  // Vérifie si le champ "lastName" contient des caractères invalides
-  else if (!regExName.test(lastNameInput.value)) {
-    lastNameErrorMsg.classList.add("error");
-    lastNameErrorMsg.innerHTML = "Les caractères saisis ne sont pas valides.";
-    lastNameErrorMsg.style.color = "red";
-    lastNameErrorMsg.style.fontWeight = "bold";
-    isValid = false;
-  }
-  // Si le champ "lastName" est valide, efface le message d'erreur
-  else {
-    lastNameErrorMsg.innerHTML = "";
-  }
-
-  // Vérifie si le champ "address" est vide
-  if (addressInput.value.trim() === "") {
-    addressErrorMsg.innerHTML = "Ce champ est requis.";
-    addressErrorMsg.classList.add("error");
-    addressErrorMsg.style.color = "red";
-    addressErrorMsg.style.fontWeight = "bold";
-    isValid = false;
-  }
-  // Si le champ "address" est valide, efface le message d'erreur
-  else {
-    addressErrorMsg.innerHTML = "";
-  }
-
-  // Vérifie si le champ "city" est vide
-  if (cityInput.value.trim() === "") {
-    cityErrorMsg.innerHTML = "Ce champ est requis.";
-    cityErrorMsg.classList.add("error");
-    cityErrorMsg.style.color = "red";
-    cityErrorMsg.style.fontWeight = "bold";
-    isValid = false;
-  }
-  // Si le champ "city" est valide, efface le message d'erreur
-  else {
-    cityErrorMsg.innerHTML = "";
-  }
-
-  // Vérifie si le champ "email" est vide
-  if (emailInput.value.trim() === "") {
-    emailErrorMsg.innerHTML = "Ce champ est requis.";
-    emailErrorMsg.classList.add("error");
-    emailErrorMsg.style.color = "red";
-    emailErrorMsg.style.fontWeight = "bold";
-    isValid = false;
-  }
-  // Vérifie si le champ "email" contient une adresse email valide
-  else if (!regExEmail.test(emailInput.value)) {
-    emailErrorMsg.classList.add("error");
-    emailErrorMsg.innerHTML = "Ceci n'est pas une adresse mail valide.";
-    emailErrorMsg.style.color = "red";
-    emailErrorMsg.style.fontWeight = "bold";
-    isValid = false;
-  }
-  // Si le champ "email" est valide, efface le message d'erreur
-  else {
-    emailErrorMsg.innerHTML = "";
-  }
-  // Renvoie la validité du formulaire
-  return isValid;
-}
-
 // Récupère le bouton "order" de la page HTML et ajoute un écouteur d'événement pour le clic, qui appelle la fonction validateForm
 const orderButton = document.getElementById("order");
 
@@ -251,7 +156,9 @@ orderButton.addEventListener("click", function (event) {
   event.preventDefault();
   // Empêche la page de se recharger lorsqu'on clique sur le bouton "order"
 
-  if (validateForm()) {
+  helper.validateForm();
+
+  if (helper.validateForm()) {
     // Récupérer le contenu du panier dans le localStorage
     const cartContent = JSON.parse(localStorage.getItem("panier"));
 
@@ -294,3 +201,5 @@ orderButton.addEventListener("click", function (event) {
       });
   }
 });
+
+helper.countProducts();

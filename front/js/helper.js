@@ -30,7 +30,7 @@ class Helper {
   }
   construcDivSucess(string, color) {
     const divSucess = document.createElement("div");
-    divSucess.innerHTML = `${string} <br><button id="btnYes">Retour accueil</button> <button id="btnNo">Allez au panier</button>`;
+    divSucess.innerHTML = `${string} <br><button id="btnYes">Continuer 😁</button> <button id="btnNo">Go panier 🛒</button>`;
 
     // Ajoute la div au DOM
     document.querySelector("main").appendChild(divSucess);
@@ -131,7 +131,7 @@ class Helper {
 
     // Crée un bouton "Retour accueil" avec les propriétés suivantes
     const homeButton = document.createElement("button");
-    homeButton.innerHTML = "Retour accueil";
+    homeButton.innerHTML = "Accueil";
     homeButton.id = "home-button";
     homeButton.style.position = "absolute";
     homeButton.style.top = "10px";
@@ -161,7 +161,7 @@ class Helper {
 
     // Crée un bouton "Retour accueil" avec les propriétés suivantes
     const homeButton = document.createElement("button");
-    homeButton.innerHTML = "Retour accueil";
+    homeButton.innerHTML = "Accueil";
     homeButton.id = "home-button";
     homeButton.style.position = "absolute";
     homeButton.style.top = "6px";
